@@ -10,12 +10,13 @@ graphics.off()
 
 # IMPORT -----------------------------------------------------------------------
 
-df <- read_csv("./data/Udemy_wikipedia_visits.csv")
+df <- read_csv("./Udemy_wikipedia_visits.csv")
 
 df <- df %>% 
       clean_names() %>% 
       mutate(date = mdy(date)) %>% 
       arrange(date)
+
 
 # 1_PREPARE --------------------------------------------------------------------
 
@@ -48,6 +49,7 @@ df <- df %>%
 
       holidays <- bind_rows(easter, chirstmas) %>% 
                   arrange(ds)
+      
 
 # 4) Remove Holidays from Prophet Table
       df_prophet <- df_prophet %>% 
@@ -72,11 +74,14 @@ df <- df %>%
                    holidays.prior.scale = 10,
                    changepoint.prior.scale = 0.05)
   
+  
 # 2) Add Regressors
       m <- add_regressor(m, "black_friday")
       
+      
 # 3) Fit Model
       m <- fit.prophet(m, training)
+      
       
 # 4) Extract Coefficients
       regressor_coefficients(m) # Will not work -> Regressors should be > 1
@@ -114,14 +119,20 @@ df <- df %>%
       accuracy(pred.yhat$yhat, test_set$y)
       
       
-# 6) COMPARE -------------------------------------------------------------------
+# 6_COMPARE -------------------------------------------------------------------
   
-# 1) Join Main and Predictions Table
-      df_compare <- df_prophet %>% tail(31) %>% select(ds, y) %>% 
-                    inner_join(predictions_yhat, by = "ds") %>% 
-                    mutate(diff = (yhat-y)/y * 100)
+    df_compare <- df_prophet %>% tail(31) %>% select(ds, y) %>% 
+                  inner_join(pred.yhat, by = "ds") %>% 
+                  mutate(diff = (yhat-y)/y * 100)
 
-
+      
+      
+      
+      
+      
+      
+      
+      
       
       
       
